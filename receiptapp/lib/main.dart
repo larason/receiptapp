@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
-import 'navigation/main_wraper.dart'; // Make sure to import your wrapper file
+import 'navigation/main_wraper.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart'; // Make sure to import your wrapper file
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MineralReceiptsApp());
 }
 
