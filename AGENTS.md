@@ -12,6 +12,8 @@ Your responsibility is to connect the existing UI with business logic, local sta
 
 Work incrementally and complete one phase before moving to the next. Do not begin a later phase until the current phase is fully implemented, tested, and stable.
 
+Project licensed under Apache 2.0
+
 ---
 
 # General Rules

@@ -218,7 +218,7 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: _filters.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              separatorBuilder: (_, _) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
                 final isSelected = _selectedFilterIndex == index;
                 return ChoiceChip(
@@ -265,7 +265,7 @@ class _ReceiptHistoryScreenState extends State<ReceiptHistoryScreen> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: _visibleReceipts.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final receipt = _visibleReceipts[index];
                 return _ReceiptHistoryCard(
