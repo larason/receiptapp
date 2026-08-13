@@ -129,6 +129,18 @@ Completion Criteria
 
 The form validates correctly and produces a complete Receipt object.
 
+Successful build.
+
+No analyzer errors.
+
+Automated and manual tests.
+ 
+Regression checks.
+
+Cleanup.
+
+Necessary refactoring.
+
 ---
 
 # Firestore Structure
@@ -189,7 +201,6 @@ Every phase must follow this sequence:
 4. Remove dead or unused code.
 5. Refactor if necessary.
 6. Ensure existing functionality is not broken.
-7. Commit the phase before starting the next.
 
 Never skip phases.
 

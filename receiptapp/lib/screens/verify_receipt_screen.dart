@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:receiptapp/core/constants/app_constants.dart';
+import 'package:receiptapp/core/utils/date_formatter.dart';
 import 'package:receiptapp/models/receipt.dart';
 
 class VerifyReceiptScreen extends StatelessWidget {
@@ -21,6 +24,16 @@ class VerifyReceiptScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     const primaryColor = Color(0xFF0F57A6);
     const secondaryTextColor = Color(0xFF64748B);
+
+    final receipt = this.receipt;
+    final mineralBadge = _mineralBadge(receipt?.mineralType);
+    final valueText = _formatNumber(receipt?.mineralValue);
+    final totalText = valueText == '—'
+        ? '—'
+        : '$valueText ${AppConstants.currencyCode}';
+    final issueDate = receipt == null
+        ? '—'
+        : DateFormatter.historyDate(receipt.salesDate);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -143,27 +156,27 @@ class VerifyReceiptScreen extends StatelessWidget {
                             color: const Color(0xFFF1F5F9),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Column(
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               _InfoDetailItem(
                                 label: 'Customer Name',
-                                value: 'East African Trading Co.',
+                                value: _orPlaceholder(receipt?.buyerName),
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               _InfoDetailItem(
                                 label: 'License Number',
-                                value: 'TZ-MIN-8842-X',
+                                value: _orPlaceholder(receipt?.licenseNumber),
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               _InfoDetailItem(
                                 label: 'Phone Number',
-                                value: '+255 744 555 123',
+                                value: _orPlaceholder(receipt?.transportPhone),
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               _InfoDetailItem(
                                 label: 'Location',
-                                value: 'Mbeya Region, Tanzania',
+                                value: _orPlaceholder(receipt?.destination),
                               ),
                             ],
                           ),
@@ -239,26 +252,13 @@ class VerifyReceiptScreen extends StatelessWidget {
                                 ),
                               ),
 
-                              // Row 1
-                              const _TableRowItem(
-                                item: 'Rough\nTanzanite',
-                                badgeText: 'AAA',
-                                badgeColor: Color(0xFFE0E7FF),
-                                badgeTextColor: Color(0xFF3730A3),
-                                weight: '14.50\nCarats',
-                              ),
-                              const Divider(
-                                height: 1,
-                                color: Color(0xFFE2E8F0),
-                              ),
-
-                              // Row 2
-                              const _TableRowItem(
-                                item: 'Raw Gold\nFlakes',
-                                badgeText: '22K',
-                                badgeColor: Color(0xFFE2E8F0),
-                                badgeTextColor: Color(0xFF334155),
-                                weight: '250.00\nGrams',
+                              // Mineral Row
+                              _TableRowItem(
+                                item: _orPlaceholder(receipt?.mineralType),
+                                badgeText: mineralBadge.text,
+                                badgeColor: mineralBadge.background,
+                                badgeTextColor: mineralBadge.foreground,
+                                weight: _orPlaceholder(receipt?.quantity),
                               ),
                               const Divider(
                                 height: 1,
@@ -275,11 +275,11 @@ class VerifyReceiptScreen extends StatelessWidget {
                                     bottomRight: Radius.circular(8),
                                   ),
                                 ),
-                                child: const Row(
+                                child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Expanded(
+                                    const Expanded(
                                       child: Text(
                                         'Total Payable Amount',
                                         style: TextStyle(
@@ -289,10 +289,10 @@ class VerifyReceiptScreen extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-                                    SizedBox(width: 8),
+                                    const SizedBox(width: 8),
                                     Text(
-                                      '37,500,000 TZS',
-                                      style: TextStyle(
+                                      totalText,
+                                      style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 13,
                                         color: primaryColor,
@@ -307,22 +307,22 @@ class VerifyReceiptScreen extends StatelessWidget {
                         const SizedBox(height: 20),
 
                         // Meta Information List
-                        const _MetaInfoRow(
+                        _MetaInfoRow(
                           icon: Icons.calendar_today_outlined,
                           label: 'Issue Date',
-                          value: 'Oct 24, 2023',
+                          value: issueDate,
                         ),
                         const SizedBox(height: 12),
-                        const _MetaInfoRow(
-                          icon: Icons.payment_outlined,
-                          label: 'Payment Method',
-                          value: 'Bank Wire',
+                        _MetaInfoRow(
+                          icon: Icons.local_shipping_outlined,
+                          label: 'Vehicle Number',
+                          value: _orPlaceholder(receipt?.vehicleNumber),
                         ),
                         const SizedBox(height: 12),
-                        const _MetaInfoRow(
-                          icon: Icons.fingerprint,
-                          label: 'Agent ID',
-                          value: 'REF-4429-MIN',
+                        _MetaInfoRow(
+                          icon: Icons.confirmation_number_outlined,
+                          label: 'Voucher Number',
+                          value: _orPlaceholder(receipt?.voucherNumber),
                         ),
                       ],
                     ),
@@ -467,6 +467,64 @@ class VerifyReceiptScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Returns the value or an em-dash placeholder when it is null or blank.
+  String _orPlaceholder(String? value) {
+    if (value == null || value.trim().isEmpty) return '—';
+    return value;
+  }
+
+  /// Formats a numeric string with thousands separators (e.g. `1,500,000`).
+  String _formatNumber(String? value) {
+    final text = value?.trim() ?? '';
+    if (text.isEmpty) return '—';
+    final number = num.tryParse(text);
+    return number == null ? text : NumberFormat('#,##0.##').format(number);
+  }
+
+  /// Grade badge label and colors for a mineral type.
+  ({String text, Color background, Color foreground}) _mineralBadge(
+    String? mineralType,
+  ) {
+    switch (mineralType) {
+      case 'Gold Concentrate':
+        return (
+          text: 'GOLD',
+          background: const Color(0xFFECEFF1),
+          foreground: const Color(0xFF37474F),
+        );
+      case 'Copper':
+        return (
+          text: 'COPPER',
+          background: const Color(0xFFEFEBE9),
+          foreground: const Color(0xFF4E342E),
+        );
+      case 'Tanzanite':
+        return (
+          text: 'TANZANITE',
+          background: const Color(0xFFE8EAF6),
+          foreground: const Color(0xFF1A237E),
+        );
+      case 'Iron Ore':
+        return (
+          text: 'IRON ORE',
+          background: const Color(0xFFFBE9E7),
+          foreground: const Color(0xFFBF360C),
+        );
+      case 'Diamond':
+        return (
+          text: 'DIAMOND',
+          background: const Color(0xFFE0E7FF),
+          foreground: const Color(0xFF3730A3),
+        );
+      default:
+        return (
+          text: '—',
+          background: const Color(0xFFE2E8F0),
+          foreground: const Color(0xFF334155),
+        );
+    }
   }
 }
 
