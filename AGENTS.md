@@ -103,28 +103,31 @@ Provide:
 
 ---
 
-# PHASE 1 — Project Foundation
+# Current phase
+
+# PHASE 2 — Receipt Form Logic
 
 Goal
 
-Prepare the application architecture.
+Connect all input fields.
 
-Tasks
+Implement:
 
-* Configure Firebase.
-* Create models.
-* Create services.
-* Create providers.
-* Configure dependency injection if needed.
-* Create shared constants.
-* Configure date formatting.
-* Configure application-wide error handling.
+* Text controllers
+* Form validation
+* Required field validation
+* Numeric validation
+* Phone validation
+* Read-only constant fields
+* Current date/time generation
+* Voucher number prefix handling (always begins with "A437")
+* Mineral value prefix handling (always begins with "TZS")
 
-Do not implement receipt logic yet.
+The user should only enter the editable portion of prefixed fields.
 
 Completion Criteria
 
-Project compiles successfully.
+The form validates correctly and produces a complete Receipt object.
 
 ---
 

@@ -16,32 +16,6 @@
 
 # THE FUTURE PHASES
 
-# PHASE 2 — Receipt Form Logic
-
-Goal
-
-Connect all input fields.
-
-Implement:
-
-* Text controllers
-* Form validation
-* Required field validation
-* Numeric validation
-* Phone validation
-* Read-only constant fields
-* Current date/time generation
-* Voucher number prefix handling (always begins with "A437")
-* Mineral value prefix handling (always begins with "TZS")
-
-The user should only enter the editable portion of prefixed fields.
-
-Completion Criteria
-
-The form validates correctly and produces a complete Receipt object.
-
----
-
 # PHASE 3 — Receipt Preview & Verification
 
 Goal

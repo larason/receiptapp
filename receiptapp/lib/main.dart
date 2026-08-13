@@ -6,6 +6,7 @@ import 'core/errors/error_handler.dart';
 import 'firebase_options.dart';
 import 'navigation/main_wraper.dart';
 import 'providers/printer_provider.dart';
+import 'providers/receipt_form_controller.dart';
 import 'providers/receipt_provider.dart';
 import 'services/firestore_service.dart';
 
@@ -29,6 +30,9 @@ class MineralReceiptsApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<PrinterProvider>(
           create: (_) => PrinterProvider(),
+        ),
+        ChangeNotifierProvider<ReceiptFormController>(
+          create: (_) => ReceiptFormController(),
         ),
       ],
       child: MaterialApp(

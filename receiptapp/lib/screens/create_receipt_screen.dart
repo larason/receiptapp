@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:receiptapp/core/constants/app_constants.dart';
+import 'package:receiptapp/core/validators/receipt_validators.dart';
+import 'package:receiptapp/providers/receipt_form_controller.dart';
 import 'package:receiptapp/screens/verify_receipt_screen.dart';
 
 class CreateReceiptScreen extends StatefulWidget {
@@ -9,45 +13,9 @@ class CreateReceiptScreen extends StatefulWidget {
 }
 
 class _CreateReceiptScreenState extends State<CreateReceiptScreen> {
-  String? _selectedMineral = 'Gold Concentrate';
-  final List<String> _mineralOptions = [
-    'Gold Concentrate',
-    'Copper',
-    'Tanzanite',
-    'Iron Ore',
-    'Diamond',
-  ];
-
-  final TextEditingController _voucherNumController = TextEditingController();
-  final TextEditingController _mineralValueController = TextEditingController();
-  final TextEditingController _quantityController = TextEditingController();
-  final TextEditingController _vehicleNumController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _buyerNameController = TextEditingController();
-  final TextEditingController _destinationController = TextEditingController();
-
-  late final DateTime _draftCreatedAt;
-
-  @override
-  void initState() {
-    super.initState();
-    _draftCreatedAt = DateTime.now();
-  }
-
-  @override
-  void dispose() {
-    _voucherNumController.dispose();
-    _mineralValueController.dispose();
-    _quantityController.dispose();
-    _vehicleNumController.dispose();
-    _phoneController.dispose();
-    _buyerNameController.dispose();
-    _destinationController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
+    final controller = context.watch<ReceiptFormController>();
     const primaryColor = Color(0xFF0F57A6);
     const labelStyle = TextStyle(
       fontSize: 14,
@@ -114,211 +82,248 @@ class _CreateReceiptScreenState extends State<CreateReceiptScreen> {
                       ),
                     ],
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Mineral Type', style: labelStyle),
-                      const SizedBox(height: 6),
-                      DropdownButtonFormField<String>(
-                        initialValue: _selectedMineral,
-                        decoration: _inputDecoration(),
-                        icon: const Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Colors.grey,
-                        ),
-                        items: _mineralOptions.map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(
-                              value,
-                              style: const TextStyle(fontSize: 14),
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedMineral = value;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 16),
-
-                      const Text('Voucher Number', style: labelStyle),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Container(
-                            height: 48,
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFEAEFF5),
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(8),
-                                bottomLeft: Radius.circular(8),
-                              ),
-                              border: Border.all(
-                                color: const Color(0xFFE2E8F0),
-                              ),
-                            ),
-                            child: const Text(
-                              'A437',
-                              style: TextStyle(
-                                color: Colors.black87,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
+                  child: Form(
+                    key: controller.formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Mineral Type', style: labelStyle),
+                        const SizedBox(height: 6),
+                        DropdownButtonFormField<String>(
+                          initialValue: controller.mineralType,
+                          decoration: _inputDecoration(),
+                          icon: const Icon(
+                            Icons.keyboard_arrow_down,
+                            color: Colors.grey,
                           ),
-                          Expanded(
-                            child: TextFormField(
-                              controller: _voucherNumController,
-                              keyboardType: TextInputType.number,
-                              decoration: _inputDecoration(
-                                hintText: 'Enter digits',
+                          items: AppConstants.mineralTypes.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(
+                                value,
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            if (value != null) {
+                              controller.mineralType = value;
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 16),
+
+                        const Text('Voucher Number', style: labelStyle),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Container(
+                              height: 48,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFEAEFF5),
                                 borderRadius: const BorderRadius.only(
-                                  topRight: Radius.circular(8),
-                                  bottomRight: Radius.circular(8),
+                                  topLeft: Radius.circular(8),
+                                  bottomLeft: Radius.circular(8),
+                                ),
+                                border: Border.all(
+                                  color: const Color(0xFFE2E8F0),
+                                ),
+                              ),
+                              child: const Text(
+                                'A437',
+                                style: TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      const Text('Mineral Value', style: labelStyle),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Container(
-                            height: 48,
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFEAEFF5),
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(8),
-                                bottomLeft: Radius.circular(8),
-                              ),
-                              border: Border.all(
-                                color: const Color(0xFFE2E8F0),
-                              ),
-                            ),
-                            child: const Text(
-                              'TZS',
-                              style: TextStyle(
-                                color: Colors.black87,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: TextFormField(
-                              controller: _mineralValueController,
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(
-                                    decimal: true,
+                            Expanded(
+                              child: TextFormField(
+                                controller: controller.voucherNumberController,
+                                keyboardType: TextInputType.number,
+                                validator: (value) =>
+                                    ReceiptValidators.requiredField(value) ??
+                                    ReceiptValidators.voucherNumber(value),
+                                decoration: _inputDecoration(
+                                  hintText: 'Enter digits',
+                                  borderRadius: const BorderRadius.only(
+                                    topRight: Radius.circular(8),
+                                    bottomRight: Radius.circular(8),
                                   ),
-                              decoration: _inputDecoration(
-                                hintText: '0.00',
-                                borderRadius: const BorderRadius.only(
-                                  topRight: Radius.circular(8),
-                                  bottomRight: Radius.circular(8),
                                 ),
                               ),
                             ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        const Text('Mineral Value', style: labelStyle),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Container(
+                              height: 48,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFEAEFF5),
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(8),
+                                  bottomLeft: Radius.circular(8),
+                                ),
+                                border: Border.all(
+                                  color: const Color(0xFFE2E8F0),
+                                ),
+                              ),
+                              child: const Text(
+                                'TZS',
+                                style: TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                controller: controller.mineralValueController,
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                      decimal: true,
+                                    ),
+                                validator: (value) =>
+                                    ReceiptValidators.requiredField(value) ??
+                                    ReceiptValidators.number(
+                                      value,
+                                      allowDecimal: true,
+                                      message: 'Enter a valid amount.',
+                                    ),
+                                decoration: _inputDecoration(
+                                  hintText: '0.00',
+                                  borderRadius: const BorderRadius.only(
+                                    topRight: Radius.circular(8),
+                                    bottomRight: Radius.circular(8),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        const Text('Quantity (kg/ct)', style: labelStyle),
+                        const SizedBox(height: 6),
+                        TextFormField(
+                          controller: controller.quantityController,
+                          keyboardType: TextInputType.number,
+                          validator: (value) =>
+                              ReceiptValidators.requiredField(value) ??
+                              ReceiptValidators.number(
+                                value,
+                                allowDecimal: true,
+                                message: 'Enter a valid quantity.',
+                              ),
+                          decoration: _inputDecoration(
+                            hintText: 'Enter amount',
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      const Text('Quantity (kg/ct)', style: labelStyle),
-                      const SizedBox(height: 6),
-                      TextFormField(
-                        controller: _quantityController,
-                        keyboardType: TextInputType.number,
-                        decoration: _inputDecoration(hintText: 'Enter amount'),
-                      ),
-                      const SizedBox(height: 20),
-
-                      Divider(color: Colors.grey.shade200, thickness: 1),
-                      const SizedBox(height: 16),
-
-                      const Text('Vehicle Number', style: labelStyle),
-                      const SizedBox(height: 6),
-                      TextFormField(
-                        controller: _vehicleNumController,
-                        decoration: _inputDecoration(
-                          hintText: 'e.g., T 123 ABC',
                         ),
-                      ),
-                      const SizedBox(height: 16),
+                        const SizedBox(height: 20),
 
-                      const Text('Transport Phone', style: labelStyle),
-                      const SizedBox(height: 6),
-                      TextFormField(
-                        controller: _phoneController,
-                        keyboardType: TextInputType.phone,
-                        decoration: _inputDecoration(hintText: '+255...'),
-                      ),
-                      const SizedBox(height: 16),
+                        Divider(color: Colors.grey.shade200, thickness: 1),
+                        const SizedBox(height: 16),
 
-                      const Text('Buyer Name', style: labelStyle),
-                      const SizedBox(height: 6),
-                      TextFormField(
-                        controller: _buyerNameController,
-                        decoration: _inputDecoration(
-                          hintText: 'Full legal name',
+                        const Text('Vehicle Number', style: labelStyle),
+                        const SizedBox(height: 6),
+                        TextFormField(
+                          controller: controller.vehicleNumberController,
+                          validator: ReceiptValidators.requiredField,
+                          decoration: _inputDecoration(
+                            hintText: 'e.g., T 123 ABC',
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
-                      const Text('Destination', style: labelStyle),
-                      const SizedBox(height: 6),
-                      TextFormField(
-                        controller: _destinationController,
-                        decoration: _inputDecoration(
-                          hintText: 'City or Delivery Point',
+                        const Text('Transport Phone', style: labelStyle),
+                        const SizedBox(height: 6),
+                        TextFormField(
+                          controller: controller.transportPhoneController,
+                          keyboardType: TextInputType.phone,
+                          validator: (value) =>
+                              ReceiptValidators.requiredField(value) ??
+                              ReceiptValidators.phone(value),
+                          decoration: _inputDecoration(hintText: '+255...'),
                         ),
-                      ),
-                      const SizedBox(height: 20),
+                        const SizedBox(height: 16),
 
-                      Divider(color: Colors.grey.shade200, thickness: 1),
-                      const SizedBox(height: 16),
+                        const Text('Buyer Name', style: labelStyle),
+                        const SizedBox(height: 6),
+                        TextFormField(
+                          controller: controller.buyerNameController,
+                          validator: ReceiptValidators.requiredField,
+                          decoration: _inputDecoration(
+                            hintText: 'Full legal name',
+                          ),
+                        ),
+                        const SizedBox(height: 16),
 
-                      _buildInfoCard(
-                        label: 'PRODUCTION CENTER',
-                        value: 'Central Mineral Hub',
-                      ),
-                      const SizedBox(height: 12),
-                      _buildInfoCard(
-                        label: 'SELLER NAME',
-                        value: 'Official Dealer',
-                      ),
-                      const SizedBox(height: 12),
-                      _buildInfoCard(
-                        label: 'LICENSE NUMBER',
-                        value: 'LIC-2024-889',
-                      ),
-                      const SizedBox(height: 12),
-                      _buildInfoCard(
-                        label: 'SALES DATE & TIME',
-                        value: _formatTimestamp(_draftCreatedAt),
-                        icon: Icons.calendar_today_outlined,
-                      ),
-                    ],
+                        const Text('Destination', style: labelStyle),
+                        const SizedBox(height: 6),
+                        TextFormField(
+                          controller: controller.destinationController,
+                          validator: ReceiptValidators.requiredField,
+                          decoration: _inputDecoration(
+                            hintText: 'City or Delivery Point',
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        Divider(color: Colors.grey.shade200, thickness: 1),
+                        const SizedBox(height: 16),
+
+                        _buildInfoCard(
+                          label: 'PRODUCTION CENTER',
+                          value: 'Central Mineral Hub',
+                        ),
+                        const SizedBox(height: 12),
+                        _buildInfoCard(
+                          label: 'SELLER NAME',
+                          value: 'Official Dealer',
+                        ),
+                        const SizedBox(height: 12),
+                        _buildInfoCard(
+                          label: 'LICENSE NUMBER',
+                          value: 'LIC-2024-889',
+                        ),
+                        const SizedBox(height: 12),
+                        _buildInfoCard(
+                          label: 'SALES DATE & TIME',
+                          value: _formatTimestamp(controller.salesDate),
+                          icon: Icons.calendar_today_outlined,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 // Preview Receipt Button
                 Center(
                   child: OutlinedButton.icon(
                     onPressed: () {
+                      final receiptForm = context.read<ReceiptFormController>();
+                      if (!receiptForm.validateAndBuild()) return;
+                      final receipt = receiptForm.draftReceipt;
+                      if (receipt == null) return;
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => VerifyReceiptScreen(),
+                          builder: (context) =>
+                              VerifyReceiptScreen(receipt: receipt),
                         ),
                       );
                     },
