@@ -56,38 +56,6 @@ Printing is blocked until confirmation.
 
 ---
 
-# PHASE 4 — Firestore Integration
-
-Goal
-
-Store receipts.
-
-Create:
-
-Firestore collection:
-
-receipts
-
-Implement:
-
-Create receipt
-
-Read receipts
-
-Update receipt
-
-Delete receipt
-
-Sort by newest first.
-
-Store timestamps using server timestamps where appropriate.
-
-Completion Criteria
-
-CRUD operations work correctly.
-
----
-
 # PHASE 5 — Receipt History
 
 Goal
