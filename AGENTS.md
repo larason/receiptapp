@@ -321,7 +321,7 @@ Do not put database queries directly inside widgets.
 
 # Current phase
 
-# 13. PHASE 3 — Implement SQLite / Drift
+# PHASE 3 — Implement SQLite / Drift
 
 Add the required Drift dependencies.
 
