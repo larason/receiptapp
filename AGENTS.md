@@ -321,26 +321,47 @@ Do not put database queries directly inside widgets.
 
 # Current phase
 
-# PHASE 3 — Implement SQLite / Drift
-
-Add the required Drift dependencies.
+# PHASE 4 — Database CRUD
 
 Implement:
 
+### Create
+
+Save a receipt locally.
+
+### Read
+
+Retrieve:
+
+* Individual receipt
+* Recent receipts
+* All receipts
+
+### Update
+
+Update an existing receipt without creating a duplicate.
+
+### Delete
+
+Delete a receipt after user confirmation.
+
+### Search
+
+Search by:
+
+* Voucher Number
+* Buyer Name
+* Vehicle Number
+
+### Sort
+
+Default:
+
 ```text
-AppDatabase
-ReceiptsTable
-ReceiptsDao
-ReceiptRepository
+Newest first
 ```
 
-Configure generated Drift code correctly.
-
-Implement database initialization during application startup.
-
-The database must automatically be created on first launch.
-
-No setup screen should be required.
+Use `salesDate` or `createdAt` appropriately.
 
 ---
 

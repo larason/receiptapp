@@ -16,49 +16,6 @@
 
 # THE FUTURE PHASES
 
-
-# 14. PHASE 4 — Database CRUD
-
-Implement:
-
-### Create
-
-Save a receipt locally.
-
-### Read
-
-Retrieve:
-
-* Individual receipt
-* Recent receipts
-* All receipts
-
-### Update
-
-Update an existing receipt without creating a duplicate.
-
-### Delete
-
-Delete a receipt after user confirmation.
-
-### Search
-
-Search by:
-
-* Voucher Number
-* Buyer Name
-* Vehicle Number
-
-### Sort
-
-Default:
-
-```text
-Newest first
-```
-
-Use `salesDate` or `createdAt` appropriately.
-
 ---
 
 # 15. PHASE 5 — Receipt Form Logic
