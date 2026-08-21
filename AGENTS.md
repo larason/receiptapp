@@ -321,24 +321,36 @@ Do not put database queries directly inside widgets.
 
 # Current phase
 
-# PHASE 1 — Project Inspection
+# PHASE 2 — Remove Firebase Backend
 
-Before changing code:
+Remove Firebase as the application's data backend.
 
-1. Inspect the entire project structure.
-2. Identify all existing screens.
-3. Identify existing models.
-4. Identify existing providers/controllers.
-5. Identify existing services.
-6. Identify existing dependencies.
-7. Identify existing receipt UI.
-8. Identify existing printer UI.
-9. Identify whether Firebase code currently exists.
-10. Identify whether any database implementation already exists.
+Remove:
 
-Do not immediately rewrite files.
+```text
+firebase_core
+cloud_firestore
+firebase_auth
+cloud_functions
+```
 
-First understand the existing architecture.
+and any other Firebase packages that are no longer required.
+
+Remove:
+
+* Firebase initialization
+* Firestore repositories
+* Cloud Function calls
+* Firebase authentication checks
+* Firebase-specific models
+* Firebase-specific providers
+* Firebase security assumptions
+
+Remove unused Firebase configuration only when it is safe to do so.
+
+The final application must build without Firebase.
+
+Do not leave Firebase code as an unnecessary dependency.
 
 ---
 
