@@ -16,30 +16,6 @@
 
 # THE FUTURE PHASES
 
----
-
-# 13. PHASE 3 — Implement SQLite / Drift
-
-Add the required Drift dependencies.
-
-Implement:
-
-```text
-AppDatabase
-ReceiptsTable
-ReceiptsDao
-ReceiptRepository
-```
-
-Configure generated Drift code correctly.
-
-Implement database initialization during application startup.
-
-The database must automatically be created on first launch.
-
-No setup screen should be required.
-
----
 
 # 14. PHASE 4 — Database CRUD
 

@@ -321,36 +321,26 @@ Do not put database queries directly inside widgets.
 
 # Current phase
 
-# PHASE 2 — Remove Firebase Backend
+# 13. PHASE 3 — Implement SQLite / Drift
 
-Remove Firebase as the application's data backend.
+Add the required Drift dependencies.
 
-Remove:
+Implement:
 
 ```text
-firebase_core
-cloud_firestore
-firebase_auth
-cloud_functions
+AppDatabase
+ReceiptsTable
+ReceiptsDao
+ReceiptRepository
 ```
 
-and any other Firebase packages that are no longer required.
+Configure generated Drift code correctly.
 
-Remove:
+Implement database initialization during application startup.
 
-* Firebase initialization
-* Firestore repositories
-* Cloud Function calls
-* Firebase authentication checks
-* Firebase-specific models
-* Firebase-specific providers
-* Firebase security assumptions
+The database must automatically be created on first launch.
 
-Remove unused Firebase configuration only when it is safe to do so.
-
-The final application must build without Firebase.
-
-Do not leave Firebase code as an unnecessary dependency.
+No setup screen should be required.
 
 ---
 
