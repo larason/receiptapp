@@ -67,6 +67,11 @@ class ReceiptProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final now = DateTime.now();
+      if (receipt.id != null &&
+          _receipts.any((r) => r.id == receipt.id)) {
+        _errorMessage = 'A receipt with this identifier already exists.';
+        return null;
+      }
       final saved = receipt.copyWith(
         id: receipt.id ?? _uuid.v4(),
         createdAt: receipt.createdAt ?? now,
@@ -95,9 +100,13 @@ class ReceiptProvider extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     try {
+      if (!_receipts.any((r) => r.id == receipt.id)) {
+        return false;
+      }
       final now = DateTime.now();
       final updated = receipt.copyWith(updatedAt: now);
       _receipts = _receipts.map((r) => r.id == receipt.id ? updated : r).toList();
+      _receipts.sort((a, b) => b.salesDate.compareTo(a.salesDate));
       return true;
     } catch (error) {
       _errorMessage = friendlyErrorMessage(error);
