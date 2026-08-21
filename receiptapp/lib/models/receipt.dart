@@ -1,8 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 /// Domain model for a mineral sale receipt.
 ///
-/// Mirrors a document in the `receipts` Firestore collection. [id] is `null`
+/// Local-first model persisted in SQLite via Drift (Phase 3). [id] is `null`
 /// until the receipt has been persisted.
 class Receipt {
   const Receipt({
@@ -24,7 +22,7 @@ class Receipt {
     this.updatedAt,
   });
 
-  /// Firestore document id.
+  /// Local database id (auto-increment) or UUID.
   final String? id;
 
   /// Voucher number including the `A437` prefix (e.g. `A437001`).
@@ -35,6 +33,8 @@ class Receipt {
   /// Mineral value as a plain number string (e.g. `'1500000'`).
   ///
   /// The `TZS` currency prefix is added at presentation time.
+  /// Stored as integer TZS units in SQLite (Drift) — string kept here for
+  /// backward compatibility until the Drift migration converts to int.
   final String mineralValue;
 
   /// Quantity as entered by the user (e.g. `'250'`).
@@ -90,10 +90,10 @@ class Receipt {
       'productionCenter': productionCenter,
       'sellerName': sellerName,
       'licenseNumber': licenseNumber,
-      'salesDate': Timestamp.fromDate(salesDate),
+      'salesDate': salesDate.toIso8601String(),
       'qrData': qrData,
-      if (createdAt != null) 'createdAt': Timestamp.fromDate(createdAt!),
-      if (updatedAt != null) 'updatedAt': Timestamp.fromDate(updatedAt!),
+      if (createdAt != null) 'createdAt': createdAt!.toIso8601String(),
+      if (updatedAt != null) 'updatedAt': updatedAt!.toIso8601String(),
     };
   }
 
@@ -138,8 +138,9 @@ class Receipt {
   static final DateTime _epoch = DateTime.fromMillisecondsSinceEpoch(0);
 
   static DateTime? _toDateTime(Object? value) {
-    if (value is Timestamp) return value.toDate();
     if (value is DateTime) return value;
+    if (value is String) return DateTime.tryParse(value);
+    if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
     return null;
   }
 }

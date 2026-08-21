@@ -12,7 +12,7 @@ abstract final class AppConstants {
   /// Currency code shown on mineral values.
   static const String currencyCode = 'TZS';
 
-  /// Firestore collection that stores receipts.
+  /// SQLite table / legacy collection name for receipts.
   static const String receiptsCollection = 'receipts';
 
   /// Supported mineral types offered in the receipt form.

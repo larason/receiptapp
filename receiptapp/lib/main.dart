@@ -1,19 +1,15 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'core/errors/error_handler.dart';
-import 'firebase_options.dart';
 import 'navigation/main_wraper.dart';
 import 'providers/printer_provider.dart';
 import 'providers/receipt_form_controller.dart';
 import 'providers/receipt_provider.dart';
-import 'services/firestore_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   configureGlobalErrorHandling();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MineralReceiptsApp());
 }
 
@@ -24,7 +20,6 @@ class MineralReceiptsApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<FirestoreService>(create: (_) => FirestoreService()),
         ChangeNotifierProvider<ReceiptProvider>(
           create: (_) => ReceiptProvider(),
         ),
