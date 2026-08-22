@@ -8,6 +8,7 @@ import '../models/receipt.dart' as domain;
 /// Repository hiding Drift/DAO details from providers.
 ///
 /// UI → Provider → Repository → DAO → Drift → SQLite
+/// All queries are database-level — no in-memory Dart filtering for large datasets.
 class ReceiptRepository {
   ReceiptRepository(this._dao);
 
@@ -71,6 +72,25 @@ class ReceiptRepository {
   Stream<List<domain.Receipt>> watchAllReceipts() =>
       _dao.watchAllReceipts().map((rows) => rows.map(_toDomain).toList());
 
+  /// Paginated read — for History lazy-loading, avoids loading entire table.
+  Future<List<domain.Receipt>> getReceiptsPaginated({
+    required int limit,
+    required int offset,
+  }) async {
+    final rows = await _dao.getReceiptsPaginated(limit: limit, offset: offset);
+    return rows.map(_toDomain).toList();
+  }
+
+  Stream<List<domain.Receipt>> watchReceiptsPaginated({
+    required int limit,
+    required int offset,
+  }) =>
+      _dao
+          .watchReceiptsPaginated(limit: limit, offset: offset)
+          .map((rows) => rows.map(_toDomain).toList());
+
+  Future<int> countAllReceipts() => _dao.countAllReceipts();
+
   Future<List<domain.Receipt>> getRecentReceipts({int limit = 10}) async {
     final rows = await _dao.getRecentReceipts(limit: limit);
     return rows.map(_toDomain).toList();
@@ -85,7 +105,25 @@ class ReceiptRepository {
     return rows.map(_toDomain).toList();
   }
 
+  /// Database-level search with pagination — preferred for large history.
+  Future<List<domain.Receipt>> searchReceiptsPaginated(
+    String query, {
+    required int limit,
+    required int offset,
+  }) async {
+    final rows = await _dao.searchReceiptsPaginated(
+      query,
+      limit: limit,
+      offset: offset,
+    );
+    return rows.map(_toDomain).toList();
+  }
+
+  Future<int> countSearchReceipts(String query) =>
+      _dao.countSearchReceipts(query);
+
   /// Updates existing receipt. Returns true if updated, false if not found.
+  /// Preserves original createdAt, stamps new updatedAt.
   Future<bool> updateReceipt(domain.Receipt receipt) async {
     final id = receipt.id;
     if (id == null) return false;

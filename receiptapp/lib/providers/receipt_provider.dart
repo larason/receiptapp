@@ -82,6 +82,38 @@ class ReceiptProvider extends ChangeNotifier {
     }
   }
 
+  /// Individual receipt read.
+  Future<Receipt?> getReceipt(String id) async {
+    final repo = _repository;
+    if (repo != null) return repo.getReceipt(id);
+    try {
+      return _receipts.firstWhere((r) => r.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<int> countAllReceipts() async {
+    final repo = _repository;
+    if (repo != null) return repo.countAllReceipts();
+    return _receipts.length;
+  }
+
+  Future<int> countSearchReceipts(String query) async {
+    final repo = _repository;
+    if (repo != null) return repo.countSearchReceipts(query);
+    final q = query.trim().toLowerCase();
+    if (q.isEmpty) return _receipts.length;
+    return _receipts
+        .where(
+          (r) =>
+              r.voucherNumber.toLowerCase().contains(q) ||
+              r.buyerName.toLowerCase().contains(q) ||
+              r.vehicleNumber.toLowerCase().contains(q),
+        )
+        .length;
+  }
+
   /// Persists a new receipt and returns it with its assigned id, or `null` on failure.
   Future<Receipt?> createReceipt(Receipt receipt) async {
     _isSaving = true;
@@ -102,7 +134,7 @@ class ReceiptProvider extends ChangeNotifier {
         // Optimistic update — stream will also sync.
         if (!_receipts.any((r) => r.id == saved.id)) {
           _receipts = [saved, ..._receipts];
-          _receipts.sort((a, b) => b.salesDate.compareTo(a.salesDate));
+          _receipts.sort(_newestFirst);
         }
         return saved;
       } else {
@@ -117,7 +149,7 @@ class ReceiptProvider extends ChangeNotifier {
           updatedAt: now,
         );
         _receipts = [saved, ..._receipts];
-        _receipts.sort((a, b) => b.salesDate.compareTo(a.salesDate));
+        _receipts.sort(_newestFirst);
         return saved;
       }
     } catch (error) {
@@ -149,7 +181,7 @@ class ReceiptProvider extends ChangeNotifier {
           final persisted = await repo.getReceipt(receipt.id!);
           final toStore = persisted ?? receipt.copyWith(updatedAt: DateTime.now());
           _receipts = _receipts.map((r) => r.id == receipt.id ? toStore : r).toList();
-          _receipts.sort((a, b) => b.salesDate.compareTo(a.salesDate));
+          _receipts.sort(_newestFirst);
         }
         return ok;
       } else {
@@ -157,7 +189,7 @@ class ReceiptProvider extends ChangeNotifier {
         final now = DateTime.now();
         final updated = receipt.copyWith(updatedAt: now);
         _receipts = _receipts.map((r) => r.id == receipt.id ? updated : r).toList();
-        _receipts.sort((a, b) => b.salesDate.compareTo(a.salesDate));
+        _receipts.sort(_newestFirst);
         return true;
       }
     } catch (error) {
@@ -196,6 +228,7 @@ class ReceiptProvider extends ChangeNotifier {
   }
 
   /// Search receipts by voucher, buyer, or vehicle (delegates to repository when available).
+  /// Uses database-level LIKE when repository is present — no in-memory filtering for large datasets.
   Future<List<Receipt>> searchReceipts(String query) async {
     final repo = _repository;
     if (repo != null) {
@@ -213,13 +246,64 @@ class ReceiptProvider extends ChangeNotifier {
         .toList();
   }
 
+  /// Database-level paginated search — preferred for History.
+  Future<List<Receipt>> searchReceiptsPaginated(
+    String query, {
+    required int limit,
+    required int offset,
+  }) async {
+    final repo = _repository;
+    if (repo != null) {
+      return repo.searchReceiptsPaginated(query, limit: limit, offset: offset);
+    }
+    final all = List<Receipt>.from(await searchReceipts(query));
+    all.sort(_newestFirst);
+    if (offset >= all.length) return [];
+    return all.skip(offset).take(limit).toList();
+  }
+
+  /// Paginated read for History — database-level limit/offset.
+  Future<List<Receipt>> getReceiptsPaginated({
+    required int limit,
+    required int offset,
+  }) async {
+    final repo = _repository;
+    if (repo != null) return repo.getReceiptsPaginated(limit: limit, offset: offset);
+    final sorted = List<Receipt>.from(_receipts)..sort(_newestFirst);
+    if (offset >= sorted.length) return [];
+    return sorted.skip(offset).take(limit).toList();
+  }
+
   /// Recent receipts, newest first.
   Future<List<Receipt>> getRecentReceipts({int limit = 5}) async {
     final repo = _repository;
     if (repo != null) return repo.getRecentReceipts(limit: limit);
-    final sorted = List<Receipt>.from(_receipts)..sort((a, b) => b.salesDate.compareTo(a.salesDate));
+    final sorted = List<Receipt>.from(_receipts)..sort(_newestFirst);
     return sorted.take(limit).toList();
   }
+
+  int _compareNewest(Receipt a, Receipt b) {
+    final c = b.salesDate.compareTo(a.salesDate);
+    if (c != 0) return c;
+    final ca = a.createdAt;
+    final cb = b.createdAt;
+    if (ca == null && cb == null) {
+      // fall through to id
+    } else if (ca == null) {
+      return 1;
+    } else if (cb == null) {
+      return -1;
+    } else {
+      final c2 = cb.compareTo(ca);
+      if (c2 != 0) return c2;
+    }
+    // Final deterministic tie-breaker — matches DAO's id desc
+    final ida = a.id ?? '';
+    final idb = b.id ?? '';
+    return idb.compareTo(ida);
+  }
+
+  int Function(Receipt, Receipt) get _newestFirst => _compareNewest;
 
   @override
   void dispose() {
